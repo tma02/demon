@@ -24,9 +24,9 @@
 
 int dcpu_cyc(DCPU *dcpu) {
 	word inst = dcpu->memory[dcpu->pc++];
-	uint8_t opcode = (inst & 0x1F);
-	int8_t b = (inst & 0x3E0) >> 5;
-	int8_t a = (inst & 0xFC00) >> 10;
+	byte opcode = (inst & 0x1F);
+	sbyte b = (inst & 0x3E0) >> 5;
+	sbyte a = (inst & 0xFC00) >> 10;
 	//pointy pointers
 	word *opr_a = get_opr_a(dcpu, &a, opcode);
 	word *opr_b = get_opr_b(dcpu, &b, opcode);
@@ -34,7 +34,7 @@ int dcpu_cyc(DCPU *dcpu) {
 	return 0;
 }
 
-word* get_opr_a(DCPU *dcpu, int8_t *value, uint8_t opcode) {
+word* get_opr_a(DCPU *dcpu, sbyte *value, byte opcode) {
 	switch (*value) {
 		case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x06: case 0x07:
 			return &dcpu->reg[opcode];
@@ -69,7 +69,7 @@ word* get_opr_a(DCPU *dcpu, int8_t *value, uint8_t opcode) {
 	}
 }
 
-word* get_opr_b(DCPU *dcpu, int8_t *value, uint8_t opcode) {
+word* get_opr_b(DCPU *dcpu, sbyte *value, byte opcode) {
 	switch (*value) {
 		case 0x18:
 			return &dcpu->memory[--dcpu->sp];

@@ -21,6 +21,8 @@
 #define DEMON__EMULATE_H_
 typedef uint16_t word;
 typedef uint32_t dword;
+typedef uint8_t byte;
+typedef int8_t sbyte;
 
 typedef struct DCPU {
 	word reg[8];
@@ -40,6 +42,6 @@ word literal[0x20] = {
 };
 
 int dcpu_cyc(DCPU *dcpu);
-word* get_opr_a(DCPU *dcpu, int8_t *value, uint8_t opcode);
-word* get_opr_b(DCPU *dcpu, int8_t *value, uint8_t opcode);
+word* get_opr_a(DCPU *dcpu, sbyte *value, byte opcode);
+word* get_opr_b(DCPU *dcpu, sbyte *value, byte opcode);
 #endif
