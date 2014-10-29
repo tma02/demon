@@ -84,6 +84,50 @@ word* get_opr_b(DCPU *dcpu, sbyte *value, byte opcode) {
 	}
 }
 
+int dcpu_do_inst(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b) {
+	return 0;
+}
+
+int basic_op(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b) {
+	if (opcode == 0x0) {
+		spec_op(dcpu, *opr_b, opr_a);
+	}
+	else {
+		switch (opcode) {
+			case 0x01:
+				//SET
+				*opr_b = *opr_a;
+				break;
+			case 0x02:
+				//ADD
+				*opr_b = *opr_b + *opr_a;
+				if (*opr_b < *opr_a) {
+					//overflow
+					dcpu->ex = 0x01;
+				}
+				break;
+			case 0x03:
+				//SUB
+				*opr_b = *opr_b - *opr_a;
+				if (*opr_b > *opr_a) {
+					//underflow
+					dcpu->ex = 0xFFFF;
+				}
+				break;
+			case 0x04:
+				//MUL
+				*opr_b = *opr_b * *opr_a;
+				dcpu->ex = ((*opr_b * *opr_a) >> 16) & 0xFFFF;
+				break;
+		}
+	}
+	return 0;
+}
+
+int spec_op(DCPU *dcpu, word opcode, word *opr_a) {
+	return 0;
+}
+
 int main() {
 	DCPU dcpu;
 	for (;;) {
