@@ -1,5 +1,5 @@
 /*
-		demon
+    demon
     DCPU-16 emulation suite
     Copyright (C) 2014  Tianyi Ma
 
@@ -30,6 +30,7 @@ int dcpu_cyc(DCPU *dcpu) {
 	//pointy pointers
 	word *opr_a = get_opr_a(dcpu, &a, opcode);
 	word *opr_b = get_opr_b(dcpu, &b, opcode);
+	dcpu_do_inst(dcpu, opcode, opr_a, opr_b);
 	printf("OP:%u A:%u B:%u\n", opcode, *opr_a, *opr_b);
 	return 0;
 }
@@ -84,48 +85,54 @@ word* get_opr_b(DCPU *dcpu, sbyte *value, byte opcode) {
 	}
 }
 
-int dcpu_do_inst(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b) {
-	return 0;
-}
-
-int basic_op(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b) {
+void dcpu_do_inst(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b) {
 	if (opcode == 0x0) {
 		spec_op(dcpu, *opr_b, opr_a);
 	}
 	else {
-		switch (opcode) {
-			case 0x01:
-				//SET
-				*opr_b = *opr_a;
-				break;
-			case 0x02:
-				//ADD
-				*opr_b = *opr_b + *opr_a;
-				if (*opr_b < *opr_a) {
-					//overflow
-					dcpu->ex = 0x01;
-				}
-				break;
-			case 0x03:
-				//SUB
-				*opr_b = *opr_b - *opr_a;
-				if (*opr_b > *opr_a) {
-					//underflow
-					dcpu->ex = 0xFFFF;
-				}
-				break;
-			case 0x04:
-				//MUL
-				*opr_b = *opr_b * *opr_a;
-				dcpu->ex = ((*opr_b * *opr_a) >> 16) & 0xFFFF;
-				break;
-		}
+		basic_op(dcpu, opcode, opr_a, opr_b);
 	}
-	return 0;
 }
 
-int spec_op(DCPU *dcpu, word opcode, word *opr_a) {
-	return 0;
+void basic_op(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b) {
+	switch (opcode) {
+		case 0x01:
+			//SET
+			*opr_b = *opr_a;
+			break;
+		case 0x02:
+			//ADD
+			*opr_b = *opr_b + *opr_a;
+			if (*opr_b < *opr_a) {
+				//overflow
+				dcpu->ex = 0x01;
+			}
+			break;
+		case 0x03:
+			//SUB
+			*opr_b = *opr_b - *opr_a;
+			if (*opr_b > *opr_a) {
+				//underflow
+				dcpu->ex = 0xFFFF;
+			}
+			break;
+		case 0x04:
+			//MUL
+			*opr_b = *opr_b * *opr_a;
+			dcpu->ex = ((*opr_b * *opr_a) >> 16) & 0xFFFF;
+			break;
+		case 0x05:
+			//MLI
+			sword *s_opr_a = opr_a;
+			sword *s_opr_b = opr_b;
+			*opr_b = *s_opr_b * *s_opr_a;
+			dcpu->ex = ((*s_opr_b * *s_opr_a) >> 16) & 0xFFFF;
+			break;
+	}
+}
+
+void spec_op(DCPU *dcpu, word opcode, word *opr_a) {
+	return;
 }
 
 int main() {

@@ -19,9 +19,10 @@
 */
 #ifndef DEMON__EMULATE_H_
 #define DEMON__EMULATE_H_
+
 typedef uint16_t word;
-typedef int16_t sword;
 typedef uint32_t dword;
+typedef int16_t sword;
 typedef uint8_t byte;
 typedef int8_t sbyte;
 
@@ -45,7 +46,8 @@ word literal[0x20] = {
 int dcpu_cyc(DCPU *dcpu);
 word* get_opr_a(DCPU *dcpu, sbyte *value, byte opcode);
 word* get_opr_b(DCPU *dcpu, sbyte *value, byte opcode);
-int dcpu_do_inst(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b);
-int basic_op(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b);
-int spec_op(DCPU *dcpu, word opcode, word *opr_a);
+void dcpu_do_inst(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b);
+void basic_op(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b);
+void spec_op(DCPU *dcpu, word opcode, word *opr_a);
+
 #endif
