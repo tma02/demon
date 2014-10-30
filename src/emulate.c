@@ -95,6 +95,8 @@ void dcpu_do_inst(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b) {
 }
 
 void basic_op(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b) {
+	sword *s_opr_a = opr_a;
+	sword *s_opr_b = opr_b;
 	switch (opcode) {
 		case 0x01:
 			//SET
@@ -123,10 +125,37 @@ void basic_op(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b) {
 			break;
 		case 0x05:
 			//MLI
-			sword *s_opr_a = opr_a;
-			sword *s_opr_b = opr_b;
 			*opr_b = *s_opr_b * *s_opr_a;
 			dcpu->ex = ((*s_opr_b * *s_opr_a) >> 16) & 0xFFFF;
+			break;
+		case 0x06:
+			//DIV
+			if (*opr_a == 0) {
+				*opr_b = 0;
+				dcpu->ex = 0;
+			}
+			else {
+				*opr_b = *opr_b / *opr_a;
+				dcpu->ex = ((*opr_b << 16) / *opr_a) & 0xFFFF;	
+			}
+			break;
+		case 0x07:
+			//DVI
+			if (*s_opr_a == 0) {
+				*s_opr_b = 0;
+				dcpu->ex = 0;
+			}
+			else {
+				*s_opr_b = *s_opr_b / *s_opr_a;
+				dcpu->ex = ((*s_opr_b << 16) / *s_opr_a) & 0xFFFF;	
+			}
+			break;
+		case 0x08:
+			//MOD
+			*opr_b = *opr_a == 0 ? 0 : *opr_b % *opr_a;
+			break;
+		case 0x09:
+			//MDI
 			break;
 	}
 }

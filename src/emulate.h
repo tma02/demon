@@ -1,5 +1,5 @@
 /*
-		demon
+    demon
     DCPU-16 emulation suite
     Copyright (C) 2014  Tianyi Ma
 
