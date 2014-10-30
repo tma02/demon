@@ -20,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include "emulate.h"
 
 int dcpu_cyc(DCPU *dcpu) {
@@ -266,6 +267,7 @@ void spec_op(DCPU *dcpu, word opcode, word *opr_a) {
 
 int main() {
 	DCPU dcpu;
+	memset(dcpu.memory, 0, sizeof dcpu.memory);
 	for (;;) {
 		dcpu_cyc(&dcpu);
 	}
