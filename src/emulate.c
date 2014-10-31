@@ -262,7 +262,25 @@ void basic_op(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b) {
 }
 
 void spec_op(DCPU *dcpu, word opcode, word *opr_a) {
-	return;
+	switch (opcode) {
+		case 0x01:
+			//JSR
+			dcpu->memory[--dcpu->sp] = ++dcpu->pc;
+			dcpu->pc = *opr_a;
+			break;
+		case 0x08:
+			//INT
+			//TODO
+			break;
+		case 0x09:
+			//IAG
+			*opr_a = dcpu->ia;
+			break;
+		case 0x0a:
+			//IAS
+			dcpu->ia = *opr_a;
+			break;
+	}
 }
 
 int main() {
