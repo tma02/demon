@@ -41,6 +41,7 @@ typedef struct DCPU {
 	word ex;
 	word ia;
 	word memory[0x10000];
+	word iq[0x100];
 } DCPU;
 
 word literal[0x20] = {

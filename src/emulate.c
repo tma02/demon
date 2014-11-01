@@ -286,6 +286,7 @@ void spec_op(DCPU *dcpu, word opcode, word *opr_a) {
 int main() {
 	DCPU dcpu;
 	memset(dcpu.memory, 0, sizeof dcpu.memory);
+	memset(dcpu.iq, 0, sizeof dcpu.iq);
 	for (;;) {
 		dcpu_cyc(&dcpu);
 	}
