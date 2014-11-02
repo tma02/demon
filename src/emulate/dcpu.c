@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include "emulate.h"
+#include "dcpu.h"
 
 int dcpu_cyc(DCPU *dcpu) {
 	word inst = dcpu->memory[dcpu->pc++];

@@ -1,0 +1,3 @@
+#ifndef DEMON_EMULATE_HARDWARE_H_
+#define DEMON_EMULATE_HARDWARE_H_
+#endif

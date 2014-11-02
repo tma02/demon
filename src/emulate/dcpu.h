@@ -17,8 +17,8 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#ifndef DEMON__EMULATE_H_
-#define DEMON__EMULATE_H_
+#ifndef DEMON_EMULATE_DCPU_H_
+#define DEMON_EMULATE_DCPU_H_
 #define REG_A 0
 #define REG_B 1
 #define REG_C 2
