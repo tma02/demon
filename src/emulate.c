@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include "emulate.h"
 
 int dcpu_cyc(DCPU *dcpu) {
@@ -283,10 +284,38 @@ void spec_op(DCPU *dcpu, word opcode, word *opr_a) {
 	}
 }
 
+void queue_interrupt(DCPU *dcpu, word msg) {
+	if (dcpu->iql >= 0xff) {
+		printf("interrupt queue larger than 256");
+	}
+	else {
+		//push
+		dcpu->iq[dcpu->iql++] = msg;
+	}
+}
+
+void interrupt(DCPU *dcpu) {
+	if (dcpu->iql-- != 0) {
+		trigger_interrupt(dcpu, dcpu->iq[0]);
+		//shift
+		memmove(&dcpu->iq[0], &dcpu->iq[1], sizeof(dcpu->iq) - sizeof(*dcpu->iq));
+	}
+}
+
+void trigger_interrupt(DCPU *dcpu, word msg) {
+
+}
+
 int main() {
 	DCPU dcpu;
+	dcpu.pc = 0;
+	dcpu.sp = 0;
+	dcpu.ex = 0;
+	dcpu.ia = 0;
 	memset(dcpu.memory, 0, sizeof dcpu.memory);
 	memset(dcpu.iq, 0, sizeof dcpu.iq);
+	dcpu.iql = 0;
+	dcpu.iaq = false;
 	for (;;) {
 		dcpu_cyc(&dcpu);
 	}

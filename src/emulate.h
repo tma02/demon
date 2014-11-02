@@ -42,6 +42,8 @@ typedef struct DCPU {
 	word ia;
 	word memory[0x10000];
 	word iq[0x100];
+	byte iql;
+	bool iaq;
 } DCPU;
 
 word literal[0x20] = {
@@ -58,5 +60,8 @@ word* get_opr_b(DCPU *dcpu, sbyte *value, byte opcode);
 void dcpu_do_inst(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b);
 void basic_op(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b);
 void spec_op(DCPU *dcpu, word opcode, word *opr_a);
+void queue_interrupt(DCPU *dcpu, word msg);
+void interrupt(DCPU *dcpu);
+void trigger_interrupt(DCPU *dcpu, word msg);
 
 #endif
