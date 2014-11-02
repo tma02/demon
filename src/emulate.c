@@ -295,10 +295,11 @@ void queue_interrupt(DCPU *dcpu, word msg) {
 }
 
 void interrupt(DCPU *dcpu) {
-	if (dcpu->iql-- != 0) {
+	if (dcpu->iql != 0) {
 		trigger_interrupt(dcpu, dcpu->iq[0]);
 		//shift
 		memmove(&dcpu->iq[0], &dcpu->iq[1], sizeof(dcpu->iq) - sizeof(*dcpu->iq));
+		dcpu->iql--;
 	}
 }
 
