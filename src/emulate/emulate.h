@@ -17,8 +17,8 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-#ifndef DEMON_EMULATE_DCPU_H_
-#define DEMON_EMULATE_DCPU_H_
+#ifndef DEMON_EMULATE_EMULATE_H_
+#define DEMON_EMULATE_EMULATE_H_
 #define REG_A 0
 #define REG_B 1
 #define REG_C 2
@@ -44,15 +44,8 @@ typedef struct DCPU {
 	word iq[0x100];
 	byte iql;
 	bool iaq;
+	word hwx;
 } DCPU;
-
-word literal[0x20] = {
-	0xffff, 
-	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 
-	0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-	0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e
-};
 
 int dcpu_cyc(DCPU *dcpu);
 word* get_opr_a(DCPU *dcpu, sbyte *value, byte opcode);
