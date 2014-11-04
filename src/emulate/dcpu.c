@@ -20,6 +20,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include "emulate.h"
@@ -34,26 +35,28 @@ word literal[0x20] = {
 };
 
 int dcpu_cyc(DCPU *dcpu) {
+	word cpc = dcpu->pc;
 	word inst = dcpu->memory[dcpu->pc++];
 	byte opcode = (inst & 0x1f);
 	sbyte b = (inst & 0x3e0) >> 5;
 	sbyte a = (inst & 0xfc00) >> 10;
 	//pointy pointers
-	word *opr_a = get_opr_a(dcpu, &a, opcode);
-	word *opr_b = get_opr_b(dcpu, &b, opcode);
+	word *opr_a = get_opr_a(dcpu, &a);
+	word *opr_b = get_opr_b(dcpu, &b);
+	printf("PC:%u OP:%u OPRA:%u OPRB:%u\n", cpc, opcode, *opr_a, *opr_b);
 	dcpu_do_inst(dcpu, opcode, opr_a, opr_b);
-	printf("OP:%u A:%u B:%u\n", opcode, *opr_a, *opr_b);
-	return 0;
+	printf("REGA: %u REGX:%u\n", dcpu->reg[REG_A], dcpu->reg[REG_X]);
+	return cpc;
 }
 
-word* get_opr_a(DCPU *dcpu, sbyte *value, byte opcode) {
+word* get_opr_a(DCPU *dcpu, sbyte *value) {
 	switch (*value) {
 		case 0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x06: case 0x07:
-			return &dcpu->reg[opcode];
+			return &dcpu->reg[*value];
 		case 0x08: case 0x09: case 0x0a: case 0x0b: case 0x0c: case 0x0d: case 0x0e: case 0x0f:
-			return &dcpu->memory[dcpu->reg[opcode & 0x07]];
+			return &dcpu->memory[dcpu->reg[*value & 0x07]];
 		case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x16: case 0x17:
-			return &dcpu->memory[dcpu->reg[opcode & 0x0f] + dcpu->memory[dcpu->pc++]];
+			return &dcpu->memory[dcpu->reg[*value & 0x0f] + dcpu->memory[dcpu->pc++]];
 		case 0x18:
 			return &dcpu->memory[dcpu->sp++];
 		case 0x19:
@@ -81,7 +84,7 @@ word* get_opr_a(DCPU *dcpu, sbyte *value, byte opcode) {
 	}
 }
 
-word* get_opr_b(DCPU *dcpu, sbyte *value, byte opcode) {
+word* get_opr_b(DCPU *dcpu, sbyte *value) {
 	switch (*value) {
 		case 0x18:
 			return &dcpu->memory[--dcpu->sp];
@@ -92,7 +95,7 @@ word* get_opr_b(DCPU *dcpu, sbyte *value, byte opcode) {
 			printf("ILLEGAL VALUE: %u", *value);
 			return 0;
 		default:
-			return get_opr_a(dcpu, value, opcode);
+			return get_opr_a(dcpu, value);
 	}
 }
 
@@ -184,17 +187,17 @@ void basic_op(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b) {
 		case 0x0d:
 			//SHR
 			*opr_b = *opr_b >> *opr_a;
-			dcpu->ex = ((*opr_b << 16) >> *opr_a) & 0xffff;
+			dcpu->ex = ((*s_opr_b << 16) >> *s_opr_a) & 0xffff;
 			break;
 		case 0x0e:
 			//AHR
-			*opr_b = *s_opr_b >> *opr_a;
+			*opr_b = *s_opr_b >> *s_opr_a;
 			dcpu->ex = ((*opr_b << 16) >> *opr_a) & 0xffff;
 			break;
 		case 0x0f:
 			//SHL
-			*opr_b = *s_opr_b << *opr_a;
-			dcpu->ex = ((*opr_b << *opr_a) >> 16) & 0xffff;
+			*opr_b = *s_opr_b << *s_opr_a;
+			dcpu->ex = ((*s_opr_b << *s_opr_a) >> 16) & 0xffff;
 			break;
 		case 0x10:
 			//IFB
@@ -290,6 +293,9 @@ void spec_op(DCPU *dcpu, word opcode, word *opr_a) {
 			//IAS
 			dcpu->ia = *opr_a;
 			break;
+		default:
+			printf("ILLEGAL OPCODE\n");
+			break;
 	}
 }
 
@@ -316,7 +322,29 @@ void trigger_interrupt(DCPU *dcpu, word msg) {
 
 }
 
-int main() {
+void load(DCPU *dcpu, const char *filename) {
+	FILE *fp;
+	if (!(fp = fopen(filename, "rb"))) {
+		printf("could not load %s\n", filename);
+		exit(1);
+	}
+	byte buf[128];
+	word length = 0;
+	for (;;) {
+		size_t n = fread(buf, 1, sizeof buf, fp);
+		for (int i = 0; i < n; i+=2) {
+			dcpu->memory[length++] = buf[i] << 8 | buf[i + 1];
+			printf("%u\n", dcpu->memory[length - 1]);
+		}
+		if (n < sizeof(buf)) {
+			break;
+		}
+	}
+	fclose(fp);
+	printf("loaded %i words\n", length);
+}
+
+int main(int argc, char **argv) {
 	DCPU dcpu;
 	dcpu.pc = 0;
 	dcpu.sp = 0;
@@ -328,8 +356,16 @@ int main() {
 	dcpu.iaq = false;
 	dcpu.hwx = 0;
 	LEM1802 lem1802;
+	if (argc > 1) {
+		load(&dcpu, argv[1]);
+	}
+	else {
+		printf("no input file\n");
+	}
 	for (;;) {
-		dcpu_cyc(&dcpu);
+		if (dcpu_cyc(&dcpu) > 19) {
+			break;
+		}
 	}
 	return 0;
 }

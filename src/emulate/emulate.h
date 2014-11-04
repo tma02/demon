@@ -48,8 +48,8 @@ typedef struct DCPU {
 } DCPU;
 
 int dcpu_cyc(DCPU *dcpu);
-word* get_opr_a(DCPU *dcpu, sbyte *value, byte opcode);
-word* get_opr_b(DCPU *dcpu, sbyte *value, byte opcode);
+word* get_opr_a(DCPU *dcpu, sbyte *value);
+word* get_opr_b(DCPU *dcpu, sbyte *value);
 void dcpu_do_inst(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b);
 void basic_op(DCPU *dcpu, byte opcode, word *opr_a, word *opr_b);
 void spec_op(DCPU *dcpu, word opcode, word *opr_a);
